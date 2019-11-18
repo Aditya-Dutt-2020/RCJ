@@ -1,1 +1,3 @@
 This is all of the code for the Arduino.
+
+The plan is to have the Arduino control everything, including motors, but the Pi will command the arduino once it detects either green or the ball room.
