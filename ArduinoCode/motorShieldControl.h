@@ -5,9 +5,9 @@
 
 
 // change to const ints?
-#define encPinL  1 // TODO: Get correct port
-#define encPinR  2 // TODO: Get correct port
-#define servoPin 3 // TODO: Get correct pin
+#define encPinL  4 // TODO: Get correct port
+#define encPinR  3 // TODO: Get correct port
+#define servoPin 9 // TODO: Get correct pin
 
 // init constansts. Change into #defines?
 #define circum 20 // TODO: get correct value

@@ -30,8 +30,10 @@ Adafruit_DCMotor *RMotor = AFMS.getMotor(2);
 
 // Init servo
 Servo camServo;
+int camServoDeg = 180;
+int camAdd = 180;
 
-void init()
+void initMotorshield()
 {
   // connect to the motor shield
   AFMS.begin();
@@ -39,7 +41,12 @@ void init()
   pinMode(encPinL, INPUT_PULLUP);
   pinMode(encPinR, INPUT_PULLUP);
   // connect to camera servo
-  camServo.attatch(servoPin)
+  camServo.attach(servoPin);
+  camServo.write(0);
+  delay(15);
+  // attatch interrupts for encoders
+  attachInterrupt(digitalPinToInterrupt(encPinL), encLChange, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encPinR), encRChange, CHANGE);
 }
 
 void rightMotor(int dir, int pwm){
@@ -70,48 +77,35 @@ void porportionalTurn(int dir, int rpwm, int lpwm){
   }
 }
 
+void encLChange(){
+  stateCountL += 1;
+}
+
+void encRChange(){
+  stateCountR += 1;
+}
+
 void startEncoders(){
   // initializes encoders /w variables
-  lastStateL  = digitalRead(encPinL);
-  lastStateR  = digitalRead(encPinR);
   stateCountL = 0;
   stateCountR = 0;
 }
 float* getCentimeters(){
   // gets amount of centimeters moved from encoders since startEncoders(); was called.
-  // must be called in a loop continuolsly
-  curStateL = digitalRead(encPinL);
-  curStateR = digitalRead(encPinR);
-  // keep track of encoders
-  if !(curStateL == lastStateL){
-    stateCountL ++;
-  }
-  if !(curStateR == lastStateR){
-    stateCountR ++;
-  }
-  // convert to centimeters
-  cl = stateCountL/statesPerCentimeter
-  cr = stateCountR/statesPerCentimeter
+  startEncoders();
+  float cl = stateCountL/statesPerCentimeter;
+  float cr = stateCountR/statesPerCentimeter;
   // return centimeters ran for each motor.
   float arr[2] = {cl, cr};
-  return *arr
+  return &arr[0];
 }
 
 float getDegrees(){
   // get amount of degrees turned since startEncoders was called
-  // must be called continuosly in a loop
-  curStateL = digitalRead(encPinL);
-  curStateR = digitalRead(encPinR);
-  // keep track of encoders
-  if !(curStateL == lastStateL){
-    stateCountL ++;
-  }
-  if !(curStateR == lastStateR){
-    stateCountR ++;
-  }
+  startEncoders();
   // convert to degrees and return
-  deg = (stateCountR/statesPerDegree + stateCountL/statesPerDegree)/2 // take average degrees
-  return deg
+  float deg = (stateCountR/statesPerDegree + stateCountL/statesPerDegree)/2; // take average degrees
+  return deg;
 }
 
 void straight(int cent, int pwm){
@@ -131,7 +125,7 @@ void straight(int cent, int pwm){
 void backward(int cent, int pwm){
   // go backwards an amount of centimeters
   startEncoders(); // init encoders
-  float* enc = getEncoders()
+  float* enc = getCentimeters();
   // keep going until goal reached
   while (enc[0] <= cent and enc[1] <= cent){
     rightMotor(BACKWARD, pwm);
@@ -145,7 +139,7 @@ void backward(int cent, int pwm){
 void pointTurn(int dir, int ang, int pwm){
   // point turn some amount of degrees in a certain direction
   startEncoders(); //init encoders
-  float deg = getDegrees()
+  float deg = getDegrees();
   // keep on turning until goal reached
   while (deg < ang){
     if (dir == RIGHT){
@@ -159,9 +153,34 @@ void pointTurn(int dir, int ang, int pwm){
   }
   // stop motors
   leftMotor(FORWARD, 0);
-  rightMotor(FORWARD,0);
+  rightMotor(FORWARD,0); 
 }
 
-void turnServo(int deg){
-  camServo.write(deg)
+void turnServo(int dir, int deg, int inHowManyMSPerDeg=15){
+  if (dir == RIGHT){
+    camAdd = 1;
+  } else {
+    camAdd = -1;
+  }
+  for (int i; i<deg; i++){
+    camServo.write(camServoDeg);
+    delay(inHowManyMSPerDeg);
+    camServoDeg += camAdd;
+  }
 }
+//int pos =0;
+//void testServo(){
+//  turnServo(LEFT, 90, 7);
+//  //delay(30);
+//  turnServo(RIGHT, 90);
+//  turnServo(LEFT, 180);
+//  turnServo(RIGHT, 180);
+//}
+//
+//void setup(){
+//  initMotorshield();
+//  testServo();
+//  
+//}
+//
+//void loop(){}
