@@ -5,7 +5,7 @@
 
 
 // change to const ints?
-#define encPinL  4 // TODO: Get correct port
+#define encPinL  2 // TODO: Get correct port
 #define encPinR  3 // TODO: Get correct port
 #define servoPin 9 // TODO: Get correct pin
 

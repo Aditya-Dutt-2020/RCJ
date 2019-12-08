@@ -38,8 +38,8 @@ void initMotorshield()
   // connect to the motor shield
   AFMS.begin();
   // set pin mode
-  pinMode(encPinL, INPUT_PULLUP);
-  pinMode(encPinR, INPUT_PULLUP);
+  pinMode(encPinL, INPUT);
+  pinMode(encPinR, INPUT);
   // connect to camera servo
   camServo.attach(servoPin);
   camServo.write(0);
@@ -51,14 +51,14 @@ void initMotorshield()
 
 void rightMotor(int dir, int pwm){
   // Takes speed from 0-100 and direction and moves motor accordingly
-  pwm = pwm * (255/100);
+  //pwm = pwm * (255/100);
   RMotor->setSpeed(pwm);
   RMotor->run(dir);
 }
 
 void leftMotor(int dir, int pwm){
   // Takes speed from 0-100 and direction and moves motor accordingly
-  pwm = pwm * (255/100);
+  //pwm = map(pwm, 0, 100, 0, 255);
   LMotor->setSpeed(pwm);
   LMotor->run(dir);
 }
@@ -92,7 +92,7 @@ void startEncoders(){
 }
 float* getCentimeters(){
   // gets amount of centimeters moved from encoders since startEncoders(); was called.
-  startEncoders();
+  //startEncoders();
   float cl = stateCountL/statesPerCentimeter;
   float cr = stateCountR/statesPerCentimeter;
   // return centimeters ran for each motor.
@@ -102,7 +102,7 @@ float* getCentimeters(){
 
 float getDegrees(){
   // get amount of degrees turned since startEncoders was called
-  startEncoders();
+  //startEncoders();
   // convert to degrees and return
   float deg = (stateCountR/statesPerDegree + stateCountL/statesPerDegree)/2; // take average degrees
   return deg;
@@ -168,19 +168,16 @@ void turnServo(int dir, int deg, int inHowManyMSPerDeg=15){
     camServoDeg += camAdd;
   }
 }
-//int pos =0;
-//void testServo(){
-//  turnServo(LEFT, 90, 7);
-//  //delay(30);
-//  turnServo(RIGHT, 90);
-//  turnServo(LEFT, 180);
-//  turnServo(RIGHT, 180);
-//}
-//
-//void setup(){
-//  initMotorshield();
-//  testServo();
-//  
-//}
-//
-//void loop(){}
+int pos =0;
+void testServo(){
+  turnServo(LEFT, 90);
+  //delay(30);
+  turnServo(RIGHT, 90);
+  turnServo(LEFT, 180);
+  turnServo(RIGHT, 180);
+}
+
+void testEncoder(){
+  Serial.print(stateCountL);
+  Serial.println(stateCountR);
+}
