@@ -1,22 +1,34 @@
 #define sprint Serial.println
-#define LEFT 0 //Actuall 1
-#define RIGHT 1 //Actuall 2
-#define BACK 0 //Actuall 1
-#define FORW 1 //Actuall 2
+#define LEFT 0
+#define RIGHT 1
+#define BACK 0
+#define FORW 1
+/*sample usage: //ideally would be run in a while true loop to constantly be checking
+//command from pi: "t045r" means turn 45 deg right
+Struct command = readPi();
+int typeOfMovement = command.MoT;
+int amount = command.mag;
+int direction = command.dir;
+//then i can make the associated movements once the type, amount, and direction of movement has been set.
+*/
 String incoming = "random";
 void initSerial() {
   Serial.begin(115200);
   pinMode(13, OUTPUT);
   Serial.setTimeout(5);
 }
-
-int readPi() {
+struct movement{ 
+    bool MoT; //Move or Turn. Move is 0, Turn is 1
+    bool dir; //direction. 0 is left or back depending on MoT, 1 is right or forward depending on MoT
+    int mag; //magnitude; ie cm of movement or deg of turn
+}; 
+  
+typedef struct movement Struct;
+Struct readPi() {
   // Returns integer code for stop or go or an integer for amount of degrees
   // GO -- 999
   // STOP -- 998
-  // DIR,TURNVAL -- 0-1|0-360 EX. 2180. RIGHT 180 degrees. 1180-1|180 1=right,180=180 degs. 
-  // DIR,DIST -- -|SIZE|DIR|0-INF. MUST BE NEGATIVE. EX. 2150, 2|0|50; backwards 50 centimeters!
-
+  Struct comm; //short for command
   char target[10];
   if (Serial.available() > 0)
   {
@@ -32,18 +44,19 @@ int readPi() {
   }
   if (incoming == "stop")
   {
-    return 998;
+    comm.mag = 998;
   }
   if (incoming == "cont")
   {
-    return 999;
+    comm.mag = 999;
   }
   if (target[0] == 't')
   {
     int turnVal = (String(target[4])+String(target[5])+String(target[6])).toInt();
     int dir = target[7] == 'l' ? LEFT : RIGHT; 
-    int n = (dir+1)*100+turnval
-    return n
+    comm.MoT = 1;
+    comm.dir = dir;
+    comm.mag = turnVal;
   }
   if (target[0] == 'm')
   {
@@ -51,10 +64,12 @@ int readPi() {
     float size = strlen(strdist);
     int dist = strdist.toInt();
     int dir = target[7] == 'f' ? FORW : BACK;
-    int n = size*(pow(10.0, size+1))+(dir+1)*(pow(10.0, size))+dist
-    return dist
+    comm.MoT = 0;
+    comm.dir = dir;
+    comm.mag = turnVal;
   }
   incoming = "reset";
+  return comm;
 }
 
 
