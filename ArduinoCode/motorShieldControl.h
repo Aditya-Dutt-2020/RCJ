@@ -1,14 +1,6 @@
 #ifndef MOTORSHIELDH
 #define MOTORSHIELDH
 
-
-
-
-// change to const ints?
-#define encPinL  2 // TODO: Get correct port
-#define encPinR  3 // TODO: Get correct port
-#define servoPin 9 // TODO: Get correct pin
-
 // init constansts. Change into #defines?
 #define circum 20 // TODO: get correct value
 #define statesPerRotation 40
