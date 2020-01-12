@@ -6,3 +6,5 @@
 
 void initUs();
 long getDist();
+
+#endif
