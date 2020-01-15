@@ -9,8 +9,8 @@
 #define statesPerDegree 10 //TODO: Get Correct value
 
 // use this to find out dir in turns
-#define RIGHT 0
-#define LEFT 1
+#define RIGHT 1
+#define LEFT 0
 
 // predef funcs
 void init(); //initialize motor shield and servo
