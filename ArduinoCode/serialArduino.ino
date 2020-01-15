@@ -25,6 +25,7 @@ movement readPi() {
   // Returns integer code for stop or go or an integer for amount of degrees
   // GO -- 999
   // STOP -- 998
+  // NOTHING -- 997
   movement comm; //short for command
   char target[10];
   if (Serial.available() > 0)
@@ -32,6 +33,7 @@ movement readPi() {
     incoming = Serial.readString();
     for(int z = 0; z<=incoming.length(); z++)
       target[z] = incoming[z];
+    comm.mag = 997
   }
   else
   {
