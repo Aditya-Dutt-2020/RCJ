@@ -43,7 +43,7 @@ while(cap.isOpened()):
     
     cnt= max(contours, key=cv2.contourArea)
     
-    cv2.drawContours(frameoriginal, [cnt],-1, contourcolor, 3)
+    cv2.drawContours(frameoriginal, [cnt],-1, contourcolor, 3) #draw the biggest contour
     
     
     
@@ -53,7 +53,8 @@ while(cap.isOpened()):
         continue
     cx = int(M['m10']/M['m00'])
     cy = int(M['m01']/M['m00'])
-    cv2.circle(frameoriginal,(cx,cy),5,(255,0,0),5) #moments is blue
+    cv2.circle(frameoriginal,(cx,cy),5,(255,0,0),5) #draw where the center is
+    #moments is blue
     
     #x,y,w,h = cv2.boundingRect(cnt)
     #cv2.circle(frameoriginal,(int(x+w/2),int(y+h/2)),5,(0,255,0),5) #bounding rect is green
