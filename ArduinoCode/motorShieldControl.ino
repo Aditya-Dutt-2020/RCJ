@@ -67,13 +67,13 @@ void leftMotor(int dir, int pwm){
 
 void porportionalTurn(int dir, int rpwm, int lpwm){
   // takes two speeds for each motor and turns one forward and one backward depending on {dir} variable
-  if (dir == RIGHT){
+  if (dir == FORW){
     leftMotor(FORWARD, lpwm);
-    rightMotor(BACKWARD, rpwm);
-  }
-  if (dir == LEFT){
-    leftMotor(BACKWARD, lpwm);
     rightMotor(FORWARD, rpwm);
+  }
+  if (dir == BACK){
+    leftMotor(BACKWARD, lpwm);
+    rightMotor(BACKWARD, rpwm);
   }
 }
 

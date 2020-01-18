@@ -1,3 +1,4 @@
+  
 #ifndef MOTORSHIELDH
 #define MOTORSHIELDH
 
@@ -11,6 +12,8 @@
 // use this to find out dir in turns
 #define RIGHT 1
 #define LEFT 0
+#define FORW 1
+#define BACK 0
 
 // predef funcs
 void init(); //initialize motor shield and servo
