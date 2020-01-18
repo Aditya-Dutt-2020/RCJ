@@ -63,7 +63,10 @@ void leftMotor(int dir, int pwm){
   LMotor->run(dir);
 }
 
-
+void stopAllMotors(){
+  rightMotor(RELEASE, 0);
+  leftMotor(RELEASE, 0);
+}
 
 void porportionalTurn(int dir, int rpwm, int lpwm){
   // takes two speeds for each motor and turns one forward and one backward depending on {dir} variable
