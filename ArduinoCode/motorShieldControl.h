@@ -3,11 +3,11 @@
 #define MOTORSHIELDH
 
 // init constansts. Change into #defines?
-#define circum 20 // TODO: get correct value
-#define statesPerRotation 40
+#define circum 5.8 // TODO: get correct value
+#define statesPerRotation 48
 #define distancePerStep circum/statesPerRotation
 #define statesPerCentimeter statesPerRotation/circum
-#define statesPerDegree 10 //TODO: Get Correct value
+#define statesPerDegree statesPerRotation/360
 
 // use this to find out dir in turns
 #define RIGHT 1
@@ -16,7 +16,7 @@
 #define BACK 0
 
 // predef funcs
-void init(); //initialize motor shield and servo
+void initMotorshield(); //initialize motor shield and servo
 void rightMotor(int dir, int pwm); // turn on right motor
 void leftMotor(int dir, int pwm); //turn on left motor
 void porportionalTurn(int dir, int rpwm, int lpwm); //Does a porportional turn
