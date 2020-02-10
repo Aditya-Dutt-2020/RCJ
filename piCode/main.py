@@ -1,18 +1,19 @@
 import greenDetectAditya
 import greenDetectBrian
 import ballDetectionBrian
-import silverTapeBrian
+
+import serialPi
+import buttonStopper as bs
+import piCam
 
 import sys
 import numpy as np
 import cv2
-import time
-import serial
-import RPi.GPIO as GPIO
 
+'''
 while not cap.isOpened():
     cap = cv2.VideoCapture(0)
-
+'''
 
 '''
 def hsvcontours(frame, hl, hh, sl, sh, vl, vh):
@@ -34,45 +35,39 @@ def hsvinversecontours(frame, hl, hh, sl, sh, vl, vh):
 '''
 
 #initalize serial
-global s1
-s1 = serial.Serial('COM6', 115200)
-s1.flushInput()
-def serialwrite(code)
-    s1.write(str.encode(code))
-    print("serial write: "+code)
+serialPi.initSerial()
+
 
 #initalize button thing
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-def getbutton():
-    return not GPIO.input(18)
+bs.initButton()
+
+#initalize pi cam
+piCam.initialize()
 
 
 progStop = False
 inRescueRoom = False
 
-while(cap.isOpened()):
+while(True):
     #button stop code
-    if getbutton():
+    if bs.getButton():
         progStop = not progStop
         if not progStop:
-            serialwrite("cont")
+            serialPi.write("cont")
         else:
-            serialwrite("stop")
+            serialPi.write("stop")
     if progStop:
         continue
     
     #get frame from camera
-    ret,frame=cap.read()
-    if not ret:
-        print("ret error")
-        continue
+    frame=piCam.getframe()
+    
     
     #rescue room stuff
     
     #check if currently in rescue room
     if inRescueRoom:
-        cx,cy,area = ballDetectionBrian.ballDetect(frame) #cx cy and area are all arrays that correspond with eachother
+        cx,cy,area,BorS = ballDetectionBrian.ballDetect(frame) #cx cy area and BorS are all arrays that correspond with eachother
         #do stuff
         
         continue
@@ -80,24 +75,22 @@ while(cap.isOpened()):
     #check if entering rescue room
     if silverTapeBrian.silverCheck()
         inRescueRoom=True
-        serialwrite("raise camera")
+        serialPi.write("raise camera")
         continue
     
     #green square stuff
     #move = greenDetectAditya.detectGreen(frame)
     move = greenDetectBrian.detectGreen(frame)
     if move != "skip":
-        serialwrite("stop")
+        serialPi.write("stop")
         if move == "U":
-            serialwrite("turn180l")
+            serialPi.write("turn180l")
         elif move == "left":
-            serialwrite("turn090l")
+            serialPi.write("turn090l")
         elif move == "right":
-            serialwrite("turn090r")
-        serialwrite("cont")
+            serialPi.write("turn090r")
+        serialPi.write("cont")
 
 
 # Some how end program.
-cap.release()
-cv2.destroyAllWindows()
-
+piCam.endprogram()
