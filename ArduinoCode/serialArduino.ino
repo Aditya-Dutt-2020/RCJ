@@ -65,7 +65,7 @@ movement readPi() {
     int dir = target[7] == 'f' ? FORW : BACK;
     comm.MoT = 0;
     comm.dir = dir;
-    comm.mag = turnVal;
+    comm.mag = dist;
   }
   incoming = "reset";
   return comm;
