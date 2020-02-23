@@ -1,6 +1,7 @@
 #include <QTRSensors.h>
 #include "pin.h"
 #include "motorShieldControl.h"
+#include "lineTrace.h"
 #include "Serial.h"
 QTRSensors qtr;
 
