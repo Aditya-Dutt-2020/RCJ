@@ -7,19 +7,17 @@
  * 
  */
 
-#include <Wire.h>
-#include <Servo.h>
-#include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_MS_PWMServoDriver.h"
+
 #include "motorShieldControl.h"
+#include "pin.h"
 
 // init variables
-int lastStateL = 0;
-int curStateL = 0;
-int stateCountL=0;
-int lastStateR = 0;
-int curStateR = 0;
-int stateCountR=0;
+uint32_t lastStateL = 0;
+uint32_t curStateL = 0;
+uint32_t stateCountL=0;
+uint32_t lastStateR = 0;
+uint32_t curStateR = 0;
+uint32_t stateCountR=0;
 
 // INIT MOTORSHIELD
 // create a motorshield object to be used
@@ -33,6 +31,7 @@ Servo camServo;
 int camServoDeg = 180;
 int camAdd = 180;
 
+
 void initMotorshield()
 {
   // connect to the motor shield
@@ -41,7 +40,7 @@ void initMotorshield()
   pinMode(encPinL, INPUT);
   pinMode(encPinR, INPUT);
   // connect to camera servo
-  camServo.attach(servoPin);
+  camServo.attach(servoCam);
   camServo.write(0);
   delay(15);
   // attatch interrupts for encoders
@@ -49,35 +48,33 @@ void initMotorshield()
   attachInterrupt(digitalPinToInterrupt(encPinR), encRChange, CHANGE);
 }
 
-void rightMotor(int dir, int pwm){
+void rightMotor(int dir){
   // Takes speed from 0-100 and direction and moves motor accordingly
-  //pwm = pwm * (255/100);
-  RMotor->setSpeed(pwm);
   RMotor->run(dir);
 }
 
-void leftMotor(int dir, int pwm){
+void leftMotor(int dir){
   // Takes speed from 0-100 and direction and moves motor accordingly
-  //pwm = map(pwm, 0, 100, 0, 255);
-  LMotor->setSpeed(pwm);
   LMotor->run(dir);
 }
-
+void setSpeeds(int lpwm, int rpwm)
+{
+  LMotor->setSpeed(lpwm);
+  RMotor->setSpeed(rpwm);
+}
+void runMotors(int dir)
+{
+    RMotor->run(dir);
+    LMotor->run(dir);
+}
 void stopAllMotors(){
-  rightMotor(RELEASE, 0);
-  leftMotor(RELEASE, 0);
+  setSpeeds(0, 0);
 }
 
-void porportionalTurn(int dir, int rpwm, int lpwm){
+void proportionalTurn(int Ldir, int Rdir){
   // takes two speeds for each motor and turns one forward and one backward depending on {dir} variable
-  if (dir == FORW){
-    leftMotor(FORWARD, lpwm);
-    rightMotor(FORWARD, rpwm);
-  }
-  if (dir == BACK){
-    leftMotor(BACKWARD, lpwm);
-    rightMotor(BACKWARD, rpwm);
-  }
+  leftMotor(Ldir);
+  rightMotor(Rdir);
 }
 
 void encLChange(){
@@ -93,72 +90,115 @@ void startEncoders(){
   stateCountL = 0;
   stateCountR = 0;
 }
-float* getCentimeters(){
+float *getCentimeters(){
   // gets amount of centimeters moved from encoders since startEncoders(); was called.
   //startEncoders();
-  float cl = stateCountL/statesPerCentimeter;
-  float cr = stateCountR/statesPerCentimeter;
+  float cl = stateCountL*distancePerState;
+  float cr = stateCountR*distancePerState;
+  float *arr;
+  arr = malloc(2 * sizeof(*arr));
   // return centimeters ran for each motor.
-  float arr[2] = {cl, cr};
-  return &arr[0];
+ /* Serial.print(cl);
+  Serial.print("   ");
+  Serial.print(cr);
+  Serial.print("   ");
+  Serial.println(circum/statesPerRotation);*/
+  arr[0] = cl;
+  arr[1] = cr;
+  return arr;
 }
 
-float getDegrees(){
+float convertToEnc(int deg){
   // get amount of degrees turned since startEncoders was called
   //startEncoders();
   // convert to degrees and return
-  float deg = (stateCountR/statesPerDegree + stateCountL/statesPerDegree)/2; // take average degrees
-  return deg;
+  return degreePerStates*deg;
 }
 
 void straight(int cent, int pwm){
   // go straight an amount of centimeters
   startEncoders(); // init encoders
-  float* enc = getCentimeters();
+  float *enc;
+  enc = getCentimeters();
+  setSpeeds(pwm, pwm);
   // go forward while encoders allow
   while (enc[0] <= cent and enc[1] <= cent){
-    rightMotor(FORWARD, pwm);
-    leftMotor(FORWARD,  pwm);
+    Serial.print(enc[0]);
+    Serial.print("   ");
+    Serial.println(enc[1]);
+    rightMotor(FORWARD);
+    leftMotor(FORWARD);
+    enc = getCentimeters();
   }
   // stop motors
-  rightMotor(FORWARD, 0);
-  leftMotor(FORWARD,  0);
+  rightMotor(RELEASE);
+  leftMotor(RELEASE);
+  free(enc);
 }
 
 void backward(int cent, int pwm){
   // go backwards an amount of centimeters
   startEncoders(); // init encoders
-  float* enc = getCentimeters();
+  float* enc;
+  enc = getCentimeters();
   // keep going until goal reached
+  setSpeeds(pwm, pwm);
   while (enc[0] <= cent and enc[1] <= cent){
-    rightMotor(BACKWARD, pwm);
-    leftMotor(BACKWARD,  pwm);
+    Serial.print(enc[0]);
+    Serial.print("   ");
+    Serial.println(enc[1]);
+    rightMotor(BACKWARD);
+    leftMotor(BACKWARD);
+    enc = getCentimeters();
   }
   // stop motors
-  rightMotor(BACKWARD, 0);
-  leftMotor(BACKWARD,  0);
+  rightMotor(RELEASE);
+  leftMotor(RELEASE);
 }
 
-void pointTurn(int dir, int ang, int pwm){
+//void pointTurn(int dir, int ang, int pwm){
+//  // point turn some amount of degrees in a certain direction
+//  startEncoders(); //init encoders
+//  int degenc = convertToEnc(ang)
+//  // keep osn turning until goal reached
+//  while (stateCountR < degenc){
+////    Serial.println(deg);
+//    if (dir == RIGHT){
+//      leftMotor(FORWARD, pwm);
+//      rightMotor(BACKWARD, pwm);
+//    }
+//    if (dir == LEFT){
+//      leftMotor(BACKWARD, pwm);
+//      rightMotor(FORWARD, pwm);
+//    }
+//  }
+//  // stop motors
+//  leftMotor(FORWARD, 0);
+//  rightMotor(FORWARD,0); 
+//}
+void pointTurn(int dir, float ang, int pwm){
   // point turn some amount of degrees in a certain direction
   startEncoders(); //init encoders
-  float deg = getDegrees();
+  float FracTurn = ang/360;
+  float distNeeded = FracTurn * circumOfRobot;
+  Serial.println(90/360);
+  setSpeeds(pwm, pwm);
   // keep on turning until goal reached
-  while (deg < ang){
+  while (stateCountR < (statesPerCm*distNeeded)){
+//    Serial.println(deg);
     if (dir == RIGHT){
-      leftMotor(FORWARD, pwm);
-      rightMotor(BACKWARD, pwm);
+      leftMotor(FORWARD);
+      rightMotor(BACKWARD);
     }
     if (dir == LEFT){
-      leftMotor(BACKWARD, pwm);
-      rightMotor(FORWARD, pwm);
+      leftMotor(BACKWARD);
+      rightMotor(FORWARD);
     }
   }
   // stop motors
-  leftMotor(FORWARD, 0);
-  rightMotor(FORWARD,0); 
+  leftMotor(RELEASE);
+  rightMotor(RELEASE); 
 }
-
 void turnServo(int dir, int deg, int inHowManyMSPerDeg=15){
   if (dir == RIGHT){
     camAdd = 1;
@@ -182,5 +222,6 @@ void testServo(){
 
 void testEncoder(){
   Serial.print(stateCountL);
+  Serial.print("   ");
   Serial.println(stateCountR);
 }
