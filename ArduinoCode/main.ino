@@ -30,7 +30,7 @@ void loop(){
     }
   }
   if (not progStop){
-    // arduino stuff goes here
+    lineTrace();
     
   }
 }
