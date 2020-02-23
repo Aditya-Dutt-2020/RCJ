@@ -21,7 +21,7 @@ struct movement{
 }; 
   
 
-movement readPi() {
+struct movement readPi() {
   // Returns integer code for stop or go or an integer for amount of degrees
   // GO -- 999
   // STOP -- 998
