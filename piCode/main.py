@@ -67,13 +67,13 @@ while(True):
     
     #check if currently in rescue room
     if inRescueRoom:
-        cx,cy,area,BorS = ballDetectionBrian.ballDetect(frame) #cx cy area and BorS are all arrays that correspond with eachother
+        cx,cy,r,silver = ballDetect.ballDetect(frame) #cx cy r and silver are all arrays that correspond with eachother. the silver array is true if its silver and false if its black
         #do stuff
         
         continue
     
     #check if entering rescue room
-    if silverTapeBrian.silverCheck()
+    if #TODO add check for if entering rescue room
         inRescueRoom=True
         serialPi.write("raise camera")
         continue
