@@ -26,6 +26,7 @@
 void initMotorshield(); //initialize motor shield and servo
 void rightMotor(int dir); // turn on right motor
 void leftMotor(int dir); //turn on left motor
+void setSpeeds(int lpwm, int rpwm);  // set the speeds
 void porportionalTurn(int Ldir, int Rdir); //Does a porportional turn
 void startEncoders(); // Start/reset encoders to be used
 float* getCentimeters(); // get amount of centimeters moved since startEncoders() was called
