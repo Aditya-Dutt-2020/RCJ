@@ -55,6 +55,7 @@ def main():
         
         else:
             inBallRoom = silverDetection.detectSilver()
+            #TODO also serialwrite to tell the arduino to raise the camera up if inBallRoom is true
 
 
         move = greenDetect.detectGreen(frame)
