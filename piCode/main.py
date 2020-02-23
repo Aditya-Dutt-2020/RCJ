@@ -1,6 +1,5 @@
-import greenDetectAditya
-import greenDetectBrian
-import ballDetectionBrian
+import greenDetect
+import ballDetect
 
 import serialPi
 import buttonStopper as bs
