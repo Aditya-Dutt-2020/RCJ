@@ -2,33 +2,42 @@
 
 #include "motorShieldControl.h"
 #include "ultrasonic.h"
-
+/*
 uint16_t sensorValues1[8];
-
-void setup() {
- initMotorshield();
- initUS();
- initLineTrace();
- setSpeeds(100, 100);
-
-}
-long dist;
-void loop() {
-  dist = getDist();
-  if (dist < 5){
-    // avoid time.
-    pointTurn(RIGHT, 45);
-    straight(10);
-    pointTurn(LEFT, 45);
-    for (int i; i < 8; i++){
+void readsensors()
+{
+  for (int i; i < 8; i++)
+  {
       sensorValues1[i] = readSensor(i);
+  }
+}
+*/
+
+void objavoid()
+{
+  bool dir; //left 0     right 1
+  if (getDist() < 5)
+  {
+    pointTurn(LEFT,90);
+    if (getDist() < 5)
+    {
+      dir=RIGHT;
     }
+    else
+    {
+      dir=LEFT;
+    }
+    pointTurn(RIGHT,90);
     
-    while (sensorValues1[4] < 127 and sensorValues1[5] < 127){
-      for (int i; i < 8; i++){
-        sensorValues1[i] = readSensor(i);
-      }
-    }
+    pointTurn(dir,90);
+    straight(30);
+    pointTurn(!dir,90);
+    straight(40);
+    pointTurn(!dir,90);
+    straight(30);
+    pointTurn(dir,90);
+    
+    
   }
 
 }
