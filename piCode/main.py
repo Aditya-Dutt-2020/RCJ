@@ -30,11 +30,29 @@ def main():
 
         frame = piCam.getFrame()
 
-        if inBallRoom:
-                cx,cy,r,silver = ballDetect.ballDetect(frame) #cx cy r and silver are all arrays that correspond with eachother. the silver array is true if its silver and false if its black
-                #TODO calculate move and amount
-                move=
-                amount=
+        if inBallRoom: #have the arduino check if accidentally going out of the ball room
+            cx,cy,r,silver = ballDetect.ballDetect(frame) #cx cy r and silver are all arrays that correspond with eachother. the silver array is true if its silver and false if its black
+            numballs=len(r)
+            if numballs==0:
+                serialPi.write("turn020l")
+                #wait until complete
+                continue
+            #find one closest to middle
+            closestindex=0
+            i=0
+            while i<numballs:
+                if abs(cx[i]-width/2)<abs(cx[closestindex]-width/2):
+                    closestindex=i
+                i+=1
+            
+            if cx[closestindex]==width/2: #make it a range
+                
+            elif cx[closestindex]<width/2:
+                
+            elif cx[closestindex]>width/2:
+                
+            move=
+            amount=
                 
 
             if move != "skip":
@@ -56,7 +74,8 @@ def main():
         else:
             inBallRoom = silverDetection.detectSilver()
             #TODO also serialwrite to tell the arduino to raise the camera up if inBallRoom is true
-
+            if inBallRoom:
+                serialPi.write("idk what to put here")
 
         move = greenDetect.detectGreen(frame)
         if move != "skip":
