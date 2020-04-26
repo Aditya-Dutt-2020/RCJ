@@ -9,6 +9,11 @@ import sys
 import numpy as np
 import cv2
 
+import math
+
+
+def dist(x1,y1,x2,y2):
+    return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
 def main():
     serialPi.initSerial()
@@ -18,6 +23,7 @@ def main():
     progStop = False
     inBallRoom = False
 
+    brstate=0
     while True:
         if bs.getButton():
             progStop = not progStop
@@ -29,32 +35,58 @@ def main():
             continue
 
         frame = piCam.getFrame()
-
-        if inBallRoom: #have the arduino check if accidentally going out of the ball room
+        if inBallRoom: #need to add check if accidentally going out of the ball room
             cx,cy,r,silver = ballDetect.ballDetect(frame) #cx cy r and silver are all arrays that correspond with eachother. the silver array is true if its silver and false if its black
             numballs=len(r)
             if numballs==0:
-                serialPi.write("turn020l")
-                #wait until complete
+                serialPi.write("t005l")
+                brstate=0;
+                sleeep(3)
                 continue
-            #find one closest to middle
-            closestindex=0
-            i=0
-            while i<numballs:
-                if abs(cx[i]-width/2)<abs(cx[closestindex]-width/2):
-                    closestindex=i
-                i+=1
             
-            if cx[closestindex]==width/2: #make it a range
+            if(brstate==0):
+                #find biggest one
+                biggestindex=0
+                i=0
+                while i<numballs:
+                    if r[i]>r[biggestindex]:
+                        biggestindex=i
+                    i+=1
+                CX=cx[biggestindex]
+                CY=cy[biggestindex]
+                brstate=1
+                continue
                 
-            elif cx[closestindex]<width/2:
+            
+            if(brstate==1):
+                if(r>99999):#change this later
+                    #pick up ball and stuff
+                    
+                #lock on:
+                #find point closest to CX,CY and make that the new CX,CY
+                closestindex=0
+                i=0
+                while i<numballs:
+                    if(dist(cx[i],cy[i],CX,CY)<dist(cx[closestindex],cy[closestindex],CX,CY)):
+                        closestindex=i
+                    i+=1
+                CX=cx[closestindex]
+                CY=cy[closestindex]
+                #turn if necessary
+                if CX>width/2-5 and CX<width/2+5:
+                    #forward
+                    serialPi.write("m002f")
+                    
+                elif CX<width/2:
+                    #left
+                    serialPi.write("t002l")
+                    
+                elif CX>width/2:
+                    #right
+                    serialPi.write("t002r")
+            
                 
-            elif cx[closestindex]>width/2:
-                
-            move=
-            amount=
-                
-
+            '''
             if move != "skip":
                 serialPi.write("stop")
                 if move == "forw":
@@ -68,6 +100,7 @@ def main():
                 serialPi.write("stop")
                 seriaPi.write("turn001l")  #can also go right, or go more 
                 serialPi.write("cont")
+            '''
 
             continue
         
