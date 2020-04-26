@@ -112,5 +112,5 @@ def ballDetect(frame)
     #cv2.imshow("mask",mask)
     #cv2.imshow("bwframe", bwframe)
     #v2.imshow("grayscaleframe", grayscaleframe)
-    
+    return xcoord, ycoord, radius, silver
     
